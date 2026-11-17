@@ -1,9 +1,12 @@
 <launch>
   <!-- Bridge to the simulator + the goto.py node for hero_0.
-       script: another file inside goto/ -->
+       script: another file inside goto/
+       config: parameter set of the controller (A or B), e.g. ./run.sh run goto config:=B -->
   <arg name="script" default="goto.py"/>
+  <arg name="config" default="A"/>
   <include file="$(find psr_hero)/launch/bridge.launch"/>
   <node pkg="psr_exercicios" type="$(arg script)" name="goto_0" output="screen">
     <param name="robot" value="0"/>
+    <param name="config" value="$(arg config)"/>
   </node>
 </launch>
