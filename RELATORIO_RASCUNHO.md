@@ -71,6 +71,8 @@ Os nós gravam CSV na pasta do script e param sozinhos (180 s no goto, 300 s no 
 - `goto_log_<A|B>.csv`: `t, x, y, theta, xg, yg, rho, alpha, v, w, goal_reached`
 - `avoid_log_<A|B>.csv`: `t, x, y, theta, min_range, v, w, mode`
 
+No repositório, o arquivo sem sufixo é a execução 1 e `*_s2.csv` e `*_s3.csv` são as repetições.
+
 ---
 
 ## 3. Metodologia dos ensaios
@@ -276,17 +278,20 @@ Média ± desvio-padrão (n = 3); entre parênteses, os valores das sementes 1, 
   absoluto de giro por meta cai de cerca de 0,87 s (A) para 0,37 s (B). Esse valor é derivado das médias das
   porcentagens e do número de metas, então vale como estimativa. É compatível com o `w_max` dobrado (4 contra 2 rad/s).
 - **Custo do ganho alto:** o erro angular médio ao andar é maior na B (3,8° contra 2,5°). Nas 3 sementes o valor da
-  B (3,7 a 3,9°) ficou acima do da A (2,2 a 2,8°). [PREENCHER: confirmar a explicação olhando os trechos de
-  reorientação em `goto_rho_alpha_*.png`; a hipótese é que a B anda mais rápido logo após o giro, enquanto o erro
-  ainda está sendo corrigido.]
+  B (3,7 a 3,9°) ficou acima do da A (2,2 a 2,8°). A diferença vem do transitório após cada troca de meta, não do
+  trecho em linha reta: separando as amostras com v > 0,05 m/s, a partir de 1,5 s após a troca o `|α|` médio fica
+  entre 0,0° e 0,7° nas duas configurações, enquanto nos primeiros 1,5 s fica entre 17° e 32°. Na B esses trechos
+  iniciais são cerca de 22% das amostras em movimento, contra 6 a 8% na A, porque as metas duram menos e o
+  `α_stop` de 100° deixa o robô avançar enquanto ainda gira. Por isso o erro médio pesa mais na B.
 - **Sem oscilação perto da meta** (0 trocas de sinal de `w` com ρ < 0,15 m) nas duas, e nenhuma meta perdida em
   nenhum dos 6 ensaios: a chegada é em linha reta, com `α ≈ 0`. A B, com `Kα = 4` e laço de 20 Hz, não mostrou
   instabilidade no simulador.
 - **Efeito visível nos gráficos de `α`:** a cada troca de meta, `α` salta para valores grandes (até ±180°) e
   decai em poucos instantes, o que gera os picos em dente de serra de `ρ` e `α`.
 - **Variabilidade:** a A varia mais entre sementes (de 15 a 17 metas) porque o número de metas depende da sequência
-  sorteada (metas mais distantes ou atrás do robô custam mais tempo). A B varia menos (32 a 33).
-  [PREENCHER: confirmar essa explicação, por exemplo comparando a distância total entre metas de cada semente.]
+  sorteada (metas mais distantes ou atrás do robô custam mais tempo). A B varia menos (32 a 33). Os dados confirmam
+  essa explicação: a distância média entre metas consecutivas (16 primeiras metas) é 1,16 m, 1,10 m e 1,03 m nas
+  sementes 1, 2 e 3, e a semente 3, com metas mais próximas, é justamente a que deu 17 metas na A.
 - **Observação:** em ensaios exploratórios anteriores, sem semente fixa, o resultado foi 18 metas (A) e 35 (B). Esses
   registros não foram guardados e não entram nas tabelas.
 
@@ -308,9 +313,13 @@ Média ± desvio-padrão (n = 3); entre parênteses, os valores das sementes 1, 
   [PREENCHER: se houver tempo, um ensaio variando só `Kα`.]
 
 **avoid**
-- Com 8 feixes de 45°, o lidar tem setores cegos entre os feixes. Obstáculos estreitos podem passar entre dois
-  feixes. O cilindro do exercício (diâmetro 0,30 m) é largo o bastante para ser sempre visto à distância de
-  reação usada. [PREENCHER: confirmar esse argumento com a geometria antes de afirmar no PDF.]
+- Com 8 feixes de 45°, o lidar tem setores cegos entre os feixes. Os feixes saem do centro do robô; no pior caso
+  o centro do cilindro fica a 22,5° dos dois feixes vizinhos, e um feixe só o acerta se `D · sin 22,5° ≤ 0,15 m`
+  (`D` = distância do robô ao centro do cilindro), ou seja, `D ≤ 0,39 m`: a detecção do cilindro só é
+  **garantida a menos de ~0,24 m da sua superfície**. Mais longe que isso ele pode passar entre dois feixes, o que
+  cobre parte da zona de reação da A (`D_INF = 0,35 m`) e o limite da B (`D_INF = 0,25 m`). Como a velocidade só
+  chega a zero com `D_STOP` = 0,09 a 0,10 m, isso basta para não bater, mas a reação ao cilindro pode começar mais
+  tarde do que `D_INF` sugere. Obstáculos mais estreitos teriam uma faixa de detecção garantida ainda menor.
 - Não há memória nem mapa: o controle é puramente reativo e pode cair em mínimos locais (cantos) ou órbitas
   periódicas, como visto na B antes do *wander*.
 - O robô não dá ré. A única saída de uma situação de bloqueio é girar no lugar.
@@ -396,7 +405,7 @@ Vídeos: goto [PREENCHER: link], avoid [PREENCHER: link].
 1. [PREENCHER] nomes e matrículas da equipe, link do repositório, links dos vídeos e a data de entrega (o PDF do
    enunciado diz 17/11/2026).
 2. Gravar os vídeos de 1 a 2 min de cada exercício (nenhum foi gravado até agora).
-3. Revisar as hipóteses marcadas (explicação do `|α|` maior na B, a variação maior da A entre sementes e o
-   argumento dos setores cegos).
+3. ~~Revisar as hipóteses marcadas~~ (feito: `|α|` maior na B e variação da A entre sementes confirmados nos logs;
+   argumento dos setores cegos corrigido com a geometria).
 4. Converter o Mermaid do item 2.1 em imagem para o PDF (ou desenhar o diagrama na ferramenta preferida).
 5. Decidir se as figuras do relatório mostram só a execução 1 ou se vale incluir a dispersão entre as execuções.

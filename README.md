@@ -25,12 +25,13 @@ O README original do kit (instalação, tópicos, feixes do lidar) está em [`RE
 ## Estrutura
 
 ```
-exercicios/avoid/avoid.py     nó de desvio (+ avoid_log_A.csv, avoid_log_B.csv)
-exercicios/goto/goto.py       nó de navegação (+ goto_log_A.csv, goto_log_B.csv)
+exercicios/avoid/avoid.py     nó de desvio (+ avoid_log_<A|B>.csv e as repetições *_s2.csv, *_s3.csv)
+exercicios/goto/goto.py       nó de navegação (+ goto_log_<A|B>.csv e as repetições *_s2.csv, *_s3.csv)
 exercicios/launch/*.launch    launch files (ganharam o argumento config:=A|B)
 scripts/ensaio.sh             roda um ensaio final com semente fixa
-analise/plot_avoid.py         gráficos e métricas do avoid
-analise/plot_goto.py          gráficos e métricas do goto
+analise/plot_avoid.py         gráficos e métricas do avoid (execução 1)
+analise/plot_goto.py          gráficos e métricas do goto (execução 1)
+analise/repeticoes.py         média e desvio-padrão entre as 3 execuções
 analise/figuras/              PNGs gerados
 analise/tabelas/              tabelas de métricas A vs B (.csv e .md)
 tests/                        testes offline (sem ROS) da lei de controle e da análise
@@ -72,6 +73,10 @@ Um terceiro argumento muda a semente: `./scripts/ensaio.sh goto A 7`. Além de `
 grava uma cópia com a semente no nome (`goto_log_A_s7.csv`), para ensaios com sementes diferentes não se
 sobrescreverem. No repositório, o arquivo **sem sufixo é a execução 1 (semente 1)** e os `_s2` e `_s3` são as
 repetições.
+
+**Atenção:** todo ensaio sobrescreve o arquivo sem sufixo (`goto_log_A.csv` etc.), que é o que os gráficos usam.
+Para refazer um ensaio sem perder a execução 1 guardada, faça antes uma cópia ou restaure depois com
+`git checkout -- exercicios/`. Rodar a semente 1 também cria um `*_s1.csv`, que não é usado pela análise.
 
 **No avoid, a semente do simulador não muda nada** (arena fixa, sem sorteio). As repetições do avoid variam
 apenas pelo sorteio do *wander* feito pelo nó, que não tem semente fixa; são execuções independentes.
