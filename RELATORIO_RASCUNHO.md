@@ -351,8 +351,8 @@ Média ± desvio-padrão (n = 3); entre parênteses, os valores das sementes 1, 
 
 ### 6.3 O que mudar para rodar no HeRo real
 
-Nenhum dos pontos abaixo foi medido; são mudanças esperadas e o que cada uma exigiria. [PREENCHER: se a equipe
-testar no robô físico, trocar hipóteses por medidas.]
+O código não foi testado no HeRo físico. Os pontos abaixo não foram medidos: são as mudanças esperadas, a partir
+das diferenças entre o simulador e o robô real, e o que cada uma exigiria.
 
 - **Ruído do lidar.** No simulador o lidar é determinístico (o modelo é geométrico, sem ruído). No robô real
   haverá ruído, leituras perdidas e valores fora de faixa. O tratamento de `nan/inf/zero` já existe, mas falta
@@ -373,8 +373,8 @@ testar no robô físico, trocar hipóteses por medidas.]
   (posição e orientação no robô). Os parâmetros A e B teriam que ser reajustados para o atrito e a tensão da bateria
   reais.
 - **Referencial.** No simulador a pose está num referencial `world` fixo e as metas vêm nesse mesmo referencial. No
-  robô, a origem da odometria é a posição de partida; as metas precisariam ser dadas no mesmo referencial.
-  [PREENCHER]
+  robô, a origem da odometria é a posição de partida; as metas precisariam ser dadas no mesmo referencial (por
+  exemplo, relativas à pose inicial) ou a pose precisaria vir de um sistema de localização externo.
 
 ---
 
