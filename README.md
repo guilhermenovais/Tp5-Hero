@@ -162,8 +162,10 @@ nos testes offline. Tabelas completas em [`analise/tabelas/`](analise/tabelas/).
 
 ## Vídeos
 
-- goto: [PREENCHER: link do vídeo]
-- avoid: [PREENCHER: link do vídeo]
+Gravações de 100 s da janela do simulador, configuração B, semente 1:
+
+- goto: [`videos/goto_B.mp4`](videos/goto_B.mp4) (placar de metas atingidas no topo)
+- avoid: [`videos/avoid_B.mp4`](videos/avoid_B.mp4) (tempo de ensaio no topo)
 
 ## Créditos e licença
 

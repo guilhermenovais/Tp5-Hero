@@ -397,14 +397,14 @@ Código, registros, scripts de gráficos e README em https://github.com/marcusol
 `python analise/plot_avoid.py`, `python analise/plot_goto.py` e, para a média e o desvio entre as execuções,
 `python analise/repeticoes.py`.
 
-Vídeos: goto [PREENCHER: link], avoid [PREENCHER: link].
+Vídeos (100 s cada, config. B, semente 1, gravados da janela do simulador): goto https://github.com/marcusoliveira57/Tp5-Hero/blob/main/videos/goto_B.mp4, avoid https://github.com/marcusoliveira57/Tp5-Hero/blob/main/videos/avoid_B.mp4.
 
 ---
 
 ## Pendências antes de converter para PDF
 
-1. [PREENCHER] links dos vídeos (equipe, repositório e data já preenchidos).
-2. Gravar os vídeos de 1 a 2 min de cada exercício (nenhum foi gravado até agora).
+1. ~~Links dos vídeos~~ (feito).
+2. ~~Gravar os vídeos de 1 a 2 min de cada exercício~~ (feito: `videos/goto_B.mp4` e `videos/avoid_B.mp4`).
 3. ~~Revisar as hipóteses marcadas~~ (feito: `|α|` maior na B e variação da A entre sementes confirmados nos logs;
    argumento dos setores cegos corrigido com a geometria).
 4. Converter o Mermaid do item 2.1 em imagem para o PDF (ou desenhar o diagrama na ferramenta preferida).
