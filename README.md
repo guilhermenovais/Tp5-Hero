@@ -1,193 +1,156 @@
-# Kit de simulação do HeRo — Projeto de Sistemas Robóticos (DCC/UFMG)
+# TP5: ROS e navegação com o HeRo (Projeto de Sistemas Robóticos, DCC/UFMG)
 
-Ambiente para os exercícios de ROS e navegação com o robô
-[HeRo](https://github.com/verlab/hero_common). A física e a janela 3D usam o simulador
-[Genesis](https://genesis-world.readthedocs.io/). O seu código roda em **ROS 1 Noetic**
-(Python) e usa os mesmos tópicos do robô real.
+Dois nós ROS para o robô HeRo no simulador do kit `psr-hero-kit`:
+
+| Nó | Tarefa | Entrada | Saída |
+|---|---|---|---|
+| [`avoid`](exercicios/avoid/avoid.py) | andar pela arena 2 × 2 m sem bater no cilindro central nem nas paredes | **só** o lidar (`/hero_0/laser`, 8 feixes) | `/hero_0/cmd_vel` |
+| [`goto`](exercicios/goto/goto.py) | ir de meta em meta (*goal to goal*) | `/hero_0/odom` e `/hero_0/goal` | `/hero_0/cmd_vel` |
+
+O README original do kit (instalação, tópicos, feixes do lidar) está em [`README_KIT.md`](README_KIT.md).
+
+## Estratégias
+
+- **goto:** coordenadas polares da meta no referencial do robô. `rho = hypot(xg − x, yg − y)`,
+  `alpha = wrap(atan2(yg − y, xg − x) − θ)`, `w = Kα·α` e `v = Kρ·ρ·max(cos α, 0)`, com `v = 0`
+  quando `|α|` passa de um limiar (gira no lugar). Saturação em `v` e `w`.
+- **avoid:** Braitenberg por feixe (obstáculo à direita gera giro à esquerda, e vice-versa), velocidade
+  reduzida pela folga à frente, lado de giro travado quando há algo de frente, pequeno giro aleatório
+  lento (*wander*) para não cair em órbita periódica, e anti-travamento (gira no lugar em sentido
+  aleatório se a frente ficar bloqueada). A odometria é lida só para o log e **não entra no controle**.
+- Cada nó tem duas configurações de parâmetros, `A` (conservadora) e `B` (agressiva), definidas por
+  constantes nomeadas no topo do arquivo. Os valores e as equações completas estão no cabeçalho de
+  cada `.py`.
+
+## Estrutura
 
 ```
- ┌──────────── simulador ────────────┐        ┌─────────────── ROS ───────────────┐
- │ Genesis: física + janela 3D       │  TCP   │ hero_bridge  ◄──►  seu código     │
- │ cenário e juiz (placar)           │◄──────►│ /hero_N/odom, /hero_N/laser,      │
- └───────────────────────────────────┘        │ /hero_N/cmd_vel, ...              │
-                                              └───────────────────────────────────┘
+exercicios/avoid/avoid.py     nó de desvio (+ avoid_log_A.csv, avoid_log_B.csv)
+exercicios/goto/goto.py       nó de navegação (+ goto_log_A.csv, goto_log_B.csv)
+exercicios/launch/*.launch    launch files (ganharam o argumento config:=A|B)
+scripts/ensaio.sh             roda um ensaio final com semente fixa
+analise/plot_avoid.py         gráficos e métricas do avoid
+analise/plot_goto.py          gráficos e métricas do goto
+analise/figuras/              PNGs gerados
+analise/tabelas/              tabelas de métricas A vs B (.csv e .md)
+tests/                        testes offline (sem ROS) da lei de controle e da análise
+README_KIT.md                 README original do kit
 ```
-
-## Exercícios
-
-| Pasta | Robôs | Tarefa |
-|---|---|---|
-| [`exercicios/avoid`](exercicios/avoid/README.md) | 1 | andar pela arena sem colidir, usando apenas o lidar |
-| [`exercicios/goto`](exercicios/goto/README.md) | 1 | navegar de meta em meta (*goal to goal*) com a odometria |
-| [`exercicios/sumo`](exercicios/sumo/README.md) | 2 | empurrar o adversário para fora do ringue |
-| [`exercicios/soccer`](exercicios/soccer/README.md) | 6 | futebol 3×3: um nó controla os três robôs do time |
-| [`exercicios/ctf`](exercicios/ctf/README.md) | 4 ou 2 | rouba-bandeira 2×2, com atacante e defensor |
-
-Cada pasta tem um arquivo Python com a estrutura pronta (publicador, laço de controle) e
-dois pontos a completar, marcados no código:
-
-- **TODO 1 (ROS):** criar os *subscribers* dos tópicos e guardar as mensagens;
-- **TODO 2 (controle):** transformar os dados dos sensores em um comando de velocidade.
 
 ## Requisitos
 
-| Sistema | O que instalar |
+- **Simulador e nós (Windows):** Windows 10/11 com **WSL2 + Ubuntu** e **Docker Desktop** com a integração
+  WSL ativada para o Ubuntu (Settings → Resources → WSL integration). Rode tudo no terminal do Ubuntu,
+  com o kit dentro do sistema de arquivos do Linux (por exemplo `~/psr-hero-kit`, não `/mnt/c/...`).
+  A janela 3D aparece pelo WSLg. No Linux basta o Docker Engine.
+- **Análise (fora do container):** Python 3.10 ou mais novo com `pandas`, `numpy` e `matplotlib`:
+  `pip install pandas numpy matplotlib`.
+
+## Como rodar
+
+Instalação, uma vez (5 a 15 min):
+
+```bash
+cd ~/psr-hero-kit
+./run.sh build
+```
+
+### Ensaios finais, com semente fixa (recomendado)
+
+O `./run.sh run` não aceita semente, então as metas do `goto` mudam a cada execução. Para comparar A
+e B com a mesma sequência de metas, use o script abaixo. Ele reinicia o simulador (com janela) com
+`--seed` (padrão 1) e roda o nó. O nó **para sozinho** (180 s no goto, 300 s no avoid) e fecha o CSV.
+
+```bash
+./scripts/ensaio.sh goto A       # 180 s
+./scripts/ensaio.sh goto B       # 180 s
+./scripts/ensaio.sh avoid A      # 300 s
+./scripts/ensaio.sh avoid B      # 300 s
+```
+
+Um terceiro argumento muda a semente: `./scripts/ensaio.sh goto A 7`.
+
+### Execução comum (sem semente)
+
+```bash
+./run.sh run goto config:=A
+./run.sh run goto config:=B
+./run.sh run avoid config:=A
+./run.sh run avoid config:=B
+```
+
+Sem `config:=`, vale a configuração `A`. Também vale a variável de ambiente `CONFIG` fora do launch.
+Neste modo o `roslaunch` continua vivo depois que o nó termina (a ponte com o simulador não encerra):
+quando o terminal mostrar `trial finished`, o CSV já está salvo e dá para parar com Ctrl-C.
+
+## Onde ficam os logs
+
+Na pasta do exercício, ao lado do script (a pasta `exercicios/` é montada dentro do container):
+
+| Arquivo | Colunas |
 |---|---|
-| **Linux** (Ubuntu 20.04 ou mais novo) | [Docker Engine](https://docs.docker.com/engine/install/). Use o Docker Engine, não o Docker Desktop, porque a janela do simulador usa o servidor X da máquina. |
-| **Windows 10/11** | WSL2 com Ubuntu (`wsl --install` no PowerShell como administrador) e Docker Desktop com a integração WSL ativada, ou o Docker Engine instalado dentro do Ubuntu do WSL. Rode todos os comandos **no terminal do Ubuntu (WSL2)**, com o kit dentro do sistema de arquivos do Linux (por exemplo, em `~/psr-hero-kit`, e não em `/mnt/c/...`). A janela aparece pelo WSLg. |
-| **macOS** (Intel ou Apple silicon) | [Docker Desktop](https://docs.docker.com/desktop/setup/install/mac-install/) e Python 3.12 (`brew install python@3.12`). No macOS o simulador roda direto na máquina, em um ambiente Python próprio (`.venv`), porque o Docker do Mac não abre janelas com OpenGL. O ROS roda no Docker do mesmo jeito. |
+| `exercicios/goto/goto_log_<A\|B>.csv` | `t, x, y, theta, xg, yg, rho, alpha, v, w, goal_reached` |
+| `exercicios/avoid/avoid_log_<A\|B>.csv` | `t, x, y, theta, min_range, v, w, mode` |
 
-Download e espaço em disco das imagens (medidos em um PC x86-64):
+`goal_reached = 1` marca a primeira linha com a nova meta, ou seja, a linha seguinte ao atingimento.
+`mode` (`cruise`, `avoid`, `escape`) indica o estado do controlador do avoid. Quando o ensaio roda no
+WSL, copie os CSVs de volta para o seu repositório se ele estiver em outro lugar.
 
-| Parte | Download | Em disco |
+## Gráficos e métricas
+
+Da raiz do repositório, em qualquer sistema com os requisitos de análise:
+
+```bash
+python analise/plot_avoid.py
+python analise/plot_goto.py
+```
+
+Geram os PNGs em `analise/figuras/` (trajetórias, menor distância × tempo, `rho` e `alpha` × tempo e
+as comparações A vs B lado a lado) e as tabelas em `analise/tabelas/` (`.csv` e `.md`). Colisão é
+contada por **evento**: cada vez que a menor distância do lidar cruza abaixo de 0,045 m.
+
+## Testes
+
+Rodam sem ROS nem Docker (`rospy` é simulado; o avoid usa o modelo de lidar do próprio simulador
+numa malha fechada cinemática):
+
+```bash
+python tests/test_goto.py
+python tests/test_avoid.py
+python tests/test_analise.py     # precisa de pandas e matplotlib
+```
+
+## Resultados medidos
+
+Ensaios finais no simulador (modo CPU, janela aberta, semente 1, uma execução por configuração).
+
+| goto, 180 s | A | B |
 |---|---|---|
-| imagem ROS (`psr-kit-ros`) | ~270 MB | ~0,9 GB |
-| imagem do simulador, CPU (`psr-kit-sim:cpu`) | ~480 MB | ~1,6 GB |
-| imagem do simulador, GPU (`psr-kit-sim:gpu`) | ~2,9 GB | ~5,3 GB |
+| Metas atingidas | 15 | 32 |
+| Tempo médio por meta (s) | 11,8 | 5,6 |
+| Distância percorrida (m) | 16,4 | 33,0 |
 
-Só é preciso construir uma das imagens do simulador (CPU ou GPU).
-
-A memória RAM mínima recomendada é de 8 GB. No Windows, o WSL2 usa parte dela.
-
-## Instalação (uma vez)
-
-Descompacte o kit, abra um terminal na pasta e escolha a versão do simulador:
-
-```bash
-cd psr-hero-kit
-./run.sh build          # versão CPU: funciona em qualquer máquina (recomendada)
-./run.sh build gpu      # versão GPU: só Linux/WSL2 com placa NVIDIA (veja abaixo)
-```
-
-O comando baixa as dependências e monta as imagens. A primeira vez leva de 5 a 15
-minutos, conforme a internet. Os dois *builds* podem coexistir: `./run.sh run <cenário> --cpu`
-ou `--gpu` escolhe qual usar (o padrão é o último construído).
-
-**CPU ou GPU?** Os cenários têm poucos corpos e rodam bem na CPU. A versão GPU usa CUDA na
-física e o OpenGL da placa NVIDIA na janela. Ela exige o driver NVIDIA (versão 525 ou mais
-nova) e o [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
-Sem GPU NVIDIA, use a versão CPU. No Linux com vídeo Intel ou AMD, a versão CPU pode usar a
-placa para desenhar a janela (via `/dev/dri`); sem ela, o desenho é feito por software.
-
-## Uso
-
-```bash
-./run.sh run avoid
-```
-
-O comando abre a janela do simulador (a primeira abertura de cada cenário leva cerca de
-30 s) e roda o seu código de `exercicios/avoid/avoid.py`. As mensagens dos seus nós
-aparecem no terminal.
-
-O ciclo de trabalho é:
-
-1. edite o arquivo do exercício no seu editor, na sua máquina (a pasta `exercicios/` é
-   montada dentro do container, então não há nada para copiar nem reconstruir);
-2. rode `./run.sh run <cenário>`;
-3. pare com `Ctrl-C`, ajuste o código e rode de novo. **O simulador continua aberto**
-   entre uma execução e outra, então o reinício é imediato.
-
-Comandos:
-
-| Comando | Para quê |
-|---|---|
-| `./run.sh run <cenário> [-n N] [args]` | abre o simulador (se preciso) e roda o seu código |
-| `./run.sh sim <cenário> [-n N]` | só abre o simulador |
-| `./run.sh shell` | abre um terminal no container ROS em execução (`rostopic`, `rosnode`, ...) |
-| `./run.sh logs` | mostra as mensagens do simulador |
-| `./run.sh down` | fecha tudo |
-
-Fechar a janela do simulador encerra o simulador. O próximo `./run.sh run` abre outro.
-Rodar outro cenário (ou outro número de robôs) troca o simulador automaticamente.
-
-Exemplos:
-
-```bash
-./run.sh run goto script:=goto_v2.py     # outra versão do goto (goto/goto_v2.py)
-./run.sh run sumo robot1:=none           # só o hero_0 é controlado pelo seu código
-./run.sh run soccer red:=soccer_v2.py    # seu time azul contra outra versão (soccer/soccer_v2.py)
-./run.sh run ctf -n 2                    # rouba-bandeira 1×1
-```
-
-Para testar uma versão nova sem perder a anterior, copie o arquivo dentro da mesma pasta
-(por exemplo `cp exercicios/sumo/sumo.py exercicios/sumo/sumo_v2.py`) e passe o nome
-no argumento do lado correspondente. Os nomes dos argumentos de cada cenário estão no
-README da pasta.
-
-### Inspecionar os tópicos
-
-Com um cenário rodando, abra outro terminal:
-
-```bash
-./run.sh shell
-rostopic list
-rostopic echo /hero_0/laser
-rostopic hz /hero_0/odom
-rosmsg show sensor_msgs/LaserScan
-```
-
-## Interface com o robô
-
-Os tópicos seguem o HeRo real. `N` é o número do robô (`hero_0`, `hero_1`, ...).
-
-| Tópico | Tipo | Conteúdo |
+| avoid, 300 s | A | B |
 |---|---|---|
-| `/hero_N/cmd_vel` | `geometry_msgs/Twist` | **o que você publica**: `linear.x` (m/s) e `angular.z` (rad/s) |
-| `/hero_N/odom` | `nav_msgs/Odometry` | pose (x, y, orientação) no referencial `world` e velocidades |
-| `/hero_N/laser` | `sensor_msgs/LaserScan` | lidar de 8 feixes, alcance de 0,037 a 0,5 m |
-| `/hero_N/goal` | `geometry_msgs/PointStamped` | meta atual (só no `goto`) |
-| `/ball/odom` | `nav_msgs/Odometry` | posição e velocidade da bola (só no `soccer`) |
-| `/flag/blue`, `/flag/red` | `geometry_msgs/PointStamped` | posição das bandeiras (só no `ctf`) |
-| `/hero_N/has_flag` | `std_msgs/Bool` | o robô N carrega a bandeira inimiga (só no `ctf`) |
-| `/game/state` | `std_msgs/String` | JSON com placar e tempo da rodada |
+| Colisões (menor distância < 0,045 m) | 0 | 0 |
+| Menor distância lida (m) | 0,186 | 0,118 |
+| Distância percorrida (m) | 26,9 | 54,4 |
+| Cobertura da arena (células de 0,25 m, de 64) | 41 | 62 |
 
-Os tópicos são publicados a 25 Hz. Limites do robô: `|linear.x| ≤ 0,2 m/s` e
-`|angular.z| ≤ 4 rad/s` (valores acima são saturados). Sem receber comando por 0,5 s,
-o robô para, como no firmware real.
+O anti-travamento do avoid **não foi acionado** em nenhum ensaio no simulador; ele só foi exercitado
+nos testes offline. Tabelas completas em [`analise/tabelas/`](analise/tabelas/).
 
-**Lidar.** O feixe `k` (de 0 a 7) aponta para o ângulo `-π + k·π/4` em relação à frente do
-robô, no sentido anti-horário:
+## Alterações no kit original
 
-```
-                frente
-                   4
-            5      ▲      3
-  esquerda  6    (robô)   2  direita
-            7             1
-                   0
-                 trás
-```
+- `run.sh`: no WSL com WSLg, monta `/tmp/.X11-unix` para a janela do simulador (o caminho padrão do
+  kit não funcionou nesta instalação do Docker Desktop).
+- `exercicios/launch/goto.launch` e `avoid.launch`: novo argumento `config` repassado ao nó.
 
-Um feixe que não encontra nada mede 0,5 m. As distâncias são medidas a partir do centro do
-robô, então um robô encostado na parede lê cerca de 0,037 m. O lidar enxerga paredes,
-obstáculos, outros robôs e a bola.
+## Vídeos
 
-**Funções auxiliares** (`from psr_hero.utils import ...`):
-
-| Nome | O que faz |
-|---|---|
-| `V_MAX`, `W_MAX` | limites de velocidade (0,2 m/s e 4 rad/s) |
-| `pose_from_odom(msg)` | devolve `(x, y, yaw)` de uma mensagem `Odometry` |
-| `wrap_angle(a)` | normaliza um ângulo para o intervalo `[-π, π)` |
-| `clamp(x, lo, hi)` | limita `x` ao intervalo `[lo, hi]` |
-| `beam_angle(k)` | ângulo (rad) do feixe `k` do lidar |
-| `yaw_from_quaternion(q)` | orientação em torno de z de um `Quaternion` |
-
-Para usar outras bibliotecas Python, o container ROS já tem `numpy`.
-
-## Problemas comuns
-
-| Sintoma | O que fazer |
-|---|---|
-| `DISPLAY não definido` | rode o comando no terminal da sessão gráfica. No Windows, no terminal do Ubuntu (WSL2). Por SSH a janela não abre. |
-| `cannot open display` / a janela não aparece (Linux) | rode `xhost +local:` e tente de novo. Confirme que é o Docker Engine, não o Docker Desktop. |
-| o simulador fecha logo ao abrir | `./run.sh logs` mostra o erro. Na versão GPU, teste o toolkit com `docker run --rm --gpus all ubuntu nvidia-smi`. |
-| a janela fica lenta | a renderização por software (sem placa de vídeo acessível) é mais pesada. Feche outros programas, ou use a versão GPU se tiver placa NVIDIA. |
-| `waiting for odometry (TODO 1)` no terminal | os *subscribers* do TODO 1 ainda não estão feitos ou usam o nome errado do tópico. |
-| o robô não se mexe | confira se `compute_command` devolve valores diferentes de zero e se o tópico é `/hero_<robot>/cmd_vel`. |
-| `Permission denied` ao rodar `./run.sh` | `chmod +x run.sh` (zip extraído no Windows perde a permissão). |
+- goto: [PREENCHER: link do vídeo]
+- avoid: [PREENCHER: link do vídeo]
 
 ## Créditos e licença
 
-Código sob a licença MIT (`LICENSE`). Os modelos 3D do HeRo vêm do
-[hero_common](https://github.com/verlab/hero_common) (VeRLab/UFMG, CC BY-NC-SA 4.0); veja `NOTICE.md`.
+Kit de simulação e modelos 3D do HeRo conforme `LICENSE` e `NOTICE.md` (VeRLab/UFMG, hero_common).
