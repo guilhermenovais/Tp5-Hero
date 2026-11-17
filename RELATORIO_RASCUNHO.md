@@ -388,9 +388,6 @@ configurações de parâmetros e avaliado em três execuções por configuraçã
   simulador. A transferência para o HeRo real exigirá tratar ruído do lidar, deriva da odometria, latência e as
   não linearidades dos motores.
 
-[PREENCHER: trabalhos futuros que a equipe queira citar, por exemplo ensaio isolando cada ganho, mais execuções
-para um intervalo de confiança e testes no robô real.]
-
 ---
 
 ## 8. Reprodutibilidade
