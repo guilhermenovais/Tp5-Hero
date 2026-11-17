@@ -55,4 +55,7 @@ docker rm -f psrkit-ros >/dev/null 2>&1
 wait "$PID" 2>/dev/null
 grep -E "trial finished|goals reached|saved|ERROR|Traceback" "$LOG" | cut -c1-200
 rm -f "$LOG"
-echo "== fim $(date +%T). Log em exercicios/$CENARIO/${CENARIO}_log_${CONFIG}.csv"
+# Guarda também uma cópia com a semente no nome, para que ensaios com sementes diferentes não se sobrescrevam.
+CSV="exercicios/$CENARIO/${CENARIO}_log_${CONFIG}.csv"
+[ -f "$CSV" ] && cp "$CSV" "exercicios/$CENARIO/${CENARIO}_log_${CONFIG}_s${SEMENTE}.csv"
+echo "== fim $(date +%T). Log em $CSV (cópia: ${CSV%.csv}_s${SEMENTE}.csv)"
