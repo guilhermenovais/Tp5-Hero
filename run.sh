@@ -135,7 +135,9 @@ sim_stop() {
 }
 
 x11_socket_dir() {
-  if is_wsl && docker info --format '{{.OperatingSystem}}' 2>/dev/null | grep -qi "docker desktop"; then
+  if is_wsl && [ -S /tmp/.X11-unix/X0 ]; then
+    echo /tmp/.X11-unix  # WSLg socket as seen from the WSL distro (works with Docker Desktop's integration)
+  elif is_wsl && docker info --format '{{.OperatingSystem}}' 2>/dev/null | grep -qi "docker desktop"; then
     echo /run/desktop/mnt/host/wslg/.X11-unix  # WSLg as seen by the Docker Desktop VM
   else
     echo /tmp/.X11-unix
