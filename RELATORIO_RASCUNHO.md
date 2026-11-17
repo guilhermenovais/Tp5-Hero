@@ -12,7 +12,7 @@ Equipe:
 | Luís Eduardo Jorge Almeida | 2022423440 |
 | Marcus Vinicius Gomes de Oliveira | 2022036152 |
 
-Repositório: https://github.com/marcusoliveira57/Tp5-Hero. Entrega: 17/11/2026.
+Repositório: [github.com/LeanHenrique/Tech-Tabajara, pasta "Trabalho Prático 5"](https://github.com/LeanHenrique/Tech-Tabajara/tree/main/Trabalho%20Pr%C3%A1tico%205). Entrega: 17/11/2026.
 
 ---
 
@@ -393,12 +393,12 @@ configurações de parâmetros e avaliado em três execuções por configuraçã
 
 ## 8. Reprodutibilidade
 
-Código, registros, scripts de gráficos e README em https://github.com/marcusoliveira57/Tp5-Hero. Para repetir um ensaio:
+Código, registros, scripts de gráficos e README em [github.com/LeanHenrique/Tech-Tabajara, pasta "Trabalho Prático 5"](https://github.com/LeanHenrique/Tech-Tabajara/tree/main/Trabalho%20Pr%C3%A1tico%205). Para repetir um ensaio:
 `./scripts/ensaio.sh <goto|avoid> <A|B> [semente]`. Para gerar gráficos e tabelas:
 `python analise/plot_avoid.py`, `python analise/plot_goto.py` e, para a média e o desvio entre as execuções,
 `python analise/repeticoes.py`.
 
-Vídeos (100 s cada, config. B, semente 1, gravados da janela do simulador): goto https://github.com/marcusoliveira57/Tp5-Hero/blob/main/videos/goto_B.mp4, avoid https://github.com/marcusoliveira57/Tp5-Hero/blob/main/videos/avoid_B.mp4.
+Vídeos (100 s cada, config. B, semente 1, gravados da janela do simulador): [goto](https://github.com/LeanHenrique/Tech-Tabajara/blob/main/Trabalho%20Pr%C3%A1tico%205/videos/goto_B.mp4) e [avoid](https://github.com/LeanHenrique/Tech-Tabajara/blob/main/Trabalho%20Pr%C3%A1tico%205/videos/avoid_B.mp4), na pasta `videos/` do repositório.
 
 ---
 

@@ -44,7 +44,7 @@ README_KIT.md                 README original do kit
 
 - **Simulador e nós (Windows):** Windows 10/11 com **WSL2 + Ubuntu** e **Docker Desktop** com a integração
   WSL ativada para o Ubuntu (Settings → Resources → WSL integration). Rode tudo no terminal do Ubuntu,
-  com o repositório dentro do sistema de arquivos do Linux (por exemplo `~/Tp5-Hero`, não `/mnt/c/...`).
+  com o repositório dentro do sistema de arquivos do Linux (por exemplo `~/Tech-Tabajara`, não `/mnt/c/...`).
   A janela 3D aparece pelo WSLg. No Linux basta o Docker Engine; se a janela não abrir ("No display
   detected"), libere o X para o container com `xhost +local:` (pacote `xorg-xhost`/`x11-xserver-utils`).
 - **Análise (fora do container):** Python 3.10 ou mais novo com `pandas`, `numpy` e `matplotlib`:
@@ -55,8 +55,8 @@ README_KIT.md                 README original do kit
 Instalação, uma vez (5 a 15 min):
 
 ```bash
-git clone https://github.com/marcusoliveira57/Tp5-Hero.git ~/Tp5-Hero
-cd ~/Tp5-Hero
+git clone https://github.com/LeanHenrique/Tech-Tabajara.git ~/Tech-Tabajara
+cd ~/Tech-Tabajara/"Trabalho Prático 5"
 ./run.sh build
 ```
 
