@@ -68,7 +68,13 @@ e B com a mesma sequência de metas, use o script abaixo. Ele reinicia o simulad
 ./scripts/ensaio.sh avoid B      # 300 s
 ```
 
-Um terceiro argumento muda a semente: `./scripts/ensaio.sh goto A 7`.
+Um terceiro argumento muda a semente: `./scripts/ensaio.sh goto A 7`. Além de `goto_log_A.csv`, o script
+grava uma cópia com a semente no nome (`goto_log_A_s7.csv`), para ensaios com sementes diferentes não se
+sobrescreverem. No repositório, o arquivo **sem sufixo é a execução 1 (semente 1)** e os `_s2` e `_s3` são as
+repetições.
+
+**No avoid, a semente do simulador não muda nada** (arena fixa, sem sorteio). As repetições do avoid variam
+apenas pelo sorteio do *wander* feito pelo nó, que não tem semente fixa; são execuções independentes.
 
 ### Execução comum (sem semente)
 
@@ -103,6 +109,7 @@ Da raiz do repositório, em qualquer sistema com os requisitos de análise:
 ```bash
 python analise/plot_avoid.py
 python analise/plot_goto.py
+python analise/repeticoes.py     # média e desvio-padrão entre as 3 execuções de cada config
 ```
 
 Geram os PNGs em `analise/figuras/` (trajetórias, menor distância × tempo, `rho` e `alpha` × tempo e
@@ -122,20 +129,22 @@ python tests/test_analise.py     # precisa de pandas e matplotlib
 
 ## Resultados medidos
 
-Ensaios finais no simulador (modo CPU, janela aberta, semente 1, uma execução por configuração).
+Ensaios no simulador (modo CPU, janela aberta), **3 execuções por configuração**. Média ± desvio-padrão
+amostral; com n = 3 o desvio é só uma indicação de variabilidade. Valores por execução em
+`analise/tabelas/*_repeticoes.md`.
 
-| goto, 180 s | A | B |
+| goto, 180 s (sementes 1, 2, 3) | A | B |
 |---|---|---|
-| Metas atingidas | 15 | 32 |
-| Tempo médio por meta (s) | 11,8 | 5,6 |
-| Distância percorrida (m) | 16,4 | 33,0 |
+| Metas atingidas | 15,7 ± 1,2 | 32,3 ± 0,6 |
+| Tempo médio por meta (s) | 11,1 ± 0,9 | 5,5 ± 0,1 |
+| Distância percorrida (m) | 16,40 ± 0,12 | 33,07 ± 0,06 |
 
-| avoid, 300 s | A | B |
+| avoid, 300 s (3 execuções independentes) | A | B |
 |---|---|---|
-| Colisões (menor distância < 0,045 m) | 0 | 0 |
-| Menor distância lida (m) | 0,186 | 0,118 |
-| Distância percorrida (m) | 26,9 | 54,4 |
-| Cobertura da arena (células de 0,25 m, de 64) | 41 | 62 |
+| Colisões (menor distância < 0,045 m) | 0, 0, 0 | 0, 0, 0 |
+| Menor distância lida (m) | 0,193 ± 0,008 | 0,124 ± 0,011 |
+| Distância percorrida (m) | 26,98 ± 0,21 | 54,37 ± 0,17 |
+| Cobertura da arena (células de 0,25 m, de 64) | 38,7 ± 2,1 | 60,3 ± 1,5 |
 
 O anti-travamento do avoid **não foi acionado** em nenhum ensaio no simulador; ele só foi exercitado
 nos testes offline. Tabelas completas em [`analise/tabelas/`](analise/tabelas/).

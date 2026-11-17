@@ -4,9 +4,9 @@ Projeto de Sistemas Robóticos, DCC/UFMG, 2º semestre de 2026. Prof. Paulo Reze
 Equipe: [PREENCHER: nomes e matrículas]. Repositório: [PREENCHER: link]. Entrega: [PREENCHER: confirmar a data, o PDF do enunciado diz 17/11/2026].
 
 > **Como ler este rascunho.** Todos os números das seções de resultados vêm dos CSVs dos ensaios finais
-> (`exercicios/*/*_log_*.csv`) e das tabelas em `analise/tabelas/`. Cada configuração foi rodada **uma vez**
-> no simulador, em modo CPU, com a semente 1 do simulador. O que não foi medido está marcado com
-> `[PREENCHER]` ou descrito como hipótese.
+> (`exercicios/*/*_log_*.csv`) e das tabelas em `analise/tabelas/`. Cada configuração foi rodada **três vezes**
+> no simulador, em modo CPU. As tabelas mostram **média ± desvio-padrão amostral (n = 3)**; as figuras mostram a
+> execução 1. O que não foi medido está marcado com `[PREENCHER]` ou descrito como hipótese.
 
 ---
 
@@ -75,11 +75,16 @@ Os nós gravam CSV na pasta do script e param sozinhos (180 s no goto, 300 s no 
 
 ## 3. Metodologia dos ensaios
 
-- **Simulador:** Genesis, backend CPU, dentro de Docker (Docker Desktop + WSL2). Ensaios finais com `--seed 1`,
-  de modo que o goto A e o goto B enfrentaram a **mesma sequência de metas**. Reprodução: `scripts/ensaio.sh`.
+- **Simulador:** Genesis, backend CPU, dentro de Docker (Docker Desktop + WSL2). Reprodução: `scripts/ensaio.sh`.
 - **Duração:** goto 180 s; avoid 300 s.
-- **Execuções:** uma por configuração. Não há repetições, então **não há barras de erro**: as diferenças entre
-  A e B são de uma execução cada.
+- **Execuções:** três por configuração e por exercício, 12 ensaios no total.
+  - **goto:** sementes 1, 2 e 3 do simulador. Dentro de uma mesma semente, A e B enfrentaram a **mesma sequência de
+    metas**; a semente muda a sequência.
+  - **avoid:** a semente do simulador **não tem efeito** (arena fixa, sem sorteio). As três execuções diferem
+    apenas pelo sorteio do *wander* e do lado em empates, feitos pelo nó, que **não tem semente fixa**. Portanto são
+    execuções independentes, e não "sementes".
+  - O desvio-padrão com n = 3 é só uma indicação de variabilidade, não um intervalo de confiança. Os valores de cada
+    execução estão em `analise/tabelas/*_repeticoes.md`.
 - **Colisão (avoid):** cada vez que a menor distância lida pelo lidar cruza para baixo de 0,045 m (contagem por
   evento, não por amostra).
 - **Tempo por meta (goto):** tempo entre atingimentos sucessivos, a primeira meta contada desde t = 0.
@@ -156,38 +161,43 @@ Coberto por testes offline (`tests/test_avoid.py`). **Observação:** o simulado
 A config A é **cautelosa** (lenta, reage cedo, giro suave). A config B é **rápida** (velocidade máxima, reage
 tarde, giro forte).
 
-### 4.4 Resultados (ensaios finais de 300 s)
+### 4.4 Resultados (ensaios de 300 s, 3 execuções por configuração)
 
-Figuras: `analise/figuras/avoid_trajetoria_A.png`, `avoid_trajetoria_B.png`, `avoid_distancia_A.png`,
+Figuras (execução 1): `analise/figuras/avoid_trajetoria_A.png`, `avoid_trajetoria_B.png`, `avoid_distancia_A.png`,
 `avoid_distancia_B.png` e a comparação lado a lado `avoid_comparacao.png`.
 
 ![Comparação avoid A vs B](analise/figuras/avoid_comparacao.png)
 
+Média ± desvio-padrão (n = 3); entre parênteses, os valores das execuções 1, 2 e 3.
+
 | Métrica | A | B |
 |---|---|---|
 | Duração (s) | 300 | 300 |
-| Distância percorrida (m) | 26,92 | 54,44 |
-| **Colisões** (menor distância < 0,045 m) | **0** | **0** |
-| Menor distância lida pelo lidar (m) | 0,186 | 0,118 |
-| Menor distância, percentil 5 (m) | 0,253 | 0,176 |
-| Velocidade linear média (m/s) | 0,090 | 0,182 |
-| Tempo em modo de desvio (%) | 37,7 | 25,5 |
-| Acionamentos do anti-travamento | 0 | 0 |
-| Cobertura da arena (células de 0,25 m, de 64) | 41 | 62 |
+| Distância percorrida (m) | 26,98 ± 0,21 (26,92 / 26,81 / 27,21) | 54,37 ± 0,17 (54,44 / 54,18 / 54,50) |
+| **Colisões** (menor distância < 0,045 m) | **0, 0, 0** | **0, 0, 0** |
+| Menor distância lida pelo lidar (m) | 0,193 ± 0,008 (0,186 / 0,191 / 0,202) | 0,124 ± 0,011 (0,118 / 0,137 / 0,117) |
+| Menor distância, percentil 5 (m) | 0,255 ± 0,004 | 0,177 ± 0,004 |
+| Velocidade linear média (m/s) | 0,090 ± 0,001 | 0,182 ± 0,001 |
+| Tempo em modo de desvio (%) | 39,5 ± 1,5 (37,7 / 40,3 / 40,4) | 25,2 ± 1,8 (25,5 / 26,9 / 23,3) |
+| Acionamentos do anti-travamento | 0, 0, 0 | 0, 0, 0 |
+| Cobertura da arena (células de 0,25 m, de 64) | 38,7 ± 2,1 (41 / 38 / 37) | 60,3 ± 1,5 (62 / 60 / 59) |
 
 ### 4.5 Comparação A vs B
 
-- **Segurança:** nenhuma das duas colidiu. A margem mínima ao limiar de 0,045 m foi de 0,186 m na A e 0,118 m na B
-  (cerca de 4,1 e 2,6 vezes o limiar). A B chega mais perto dos obstáculos, como esperado de uma zona de reação
-  mais estreita (`D_INF` 0,25 m contra 0,35 m) e de uma velocidade duas vezes maior.
-- **Distância e velocidade:** a B percorreu 2,0× a distância da A (54,4 m contra 26,9 m), igual à razão das
-  velocidades médias (0,182 contra 0,090 m/s).
-- **Tempo reagindo:** a A passa mais tempo em modo de desvio (37,7% contra 25,5%), porque sua zona de influência é
+- **Segurança:** nenhuma das 6 execuções colidiu. O menor valor lido em cada configuração, entre as 3 execuções,
+  foi 0,186 m na A e 0,117 m na B, cerca de 4,1 e 2,6 vezes o limiar de 0,045 m. A B chega mais perto dos
+  obstáculos (média da menor distância 0,124 m contra 0,193 m), como esperado de uma zona de reação mais estreita
+  (`D_INF` 0,25 m contra 0,35 m) e de uma velocidade duas vezes maior.
+- **Distância e velocidade:** a B percorreu 2,0× a distância da A (54,4 m contra 27,0 m), igual à razão das
+  velocidades médias (0,182 contra 0,090 m/s). O desvio-padrão da distância entre execuções é menor que 1% da média.
+- **Tempo reagindo:** a A passa mais tempo em modo de desvio (39,5% contra 25,2%), porque sua zona de influência é
   mais larga e ela "sente" os obstáculos mais cedo.
-- **Cobertura:** a B visitou 62 das 64 células, a A 41. Parte da diferença vem simplesmente de a B andar o dobro,
-  e do *wander* maior (0,5 contra 0,3 rad/s). A cobertura **não foi normalizada** pela distância. Na A, a cobertura
-  ficou quase parada entre 150 e 220 s (37 células), subindo só a 41 no fim.
-- **Limite da comparação:** é uma execução por configuração.
+- **Cobertura:** a B visitou 60,3 das 64 células em média (59 a 62), a A 38,7 (37 a 41): as faixas não se
+  sobrepõem. Parte da diferença vem simplesmente de a B andar o dobro, e do *wander* maior (0,5 contra 0,3 rad/s). A
+  cobertura **não foi normalizada** pela distância. Na execução 1 da A, a cobertura ficou quase parada entre 150 e
+  220 s (37 células), subindo só a 41 no fim.
+- **Variabilidade entre execuções:** pequena, mas vem do sorteio do *wander* feito pelo nó (Seção 3). Com n = 3
+  o desvio-padrão é apenas indicativo.
 
 ### 4.6 Caso de falha observado: órbita periódica (antes do *wander*)
 
@@ -235,45 +245,50 @@ velocidade, o que basta porque o simulador testa a distância a cada passo.
 Limites físicos do kit: `V_MAX = 0,2 m/s` e `W_MAX = 4 rad/s`. A B opera nesses limites; a A usa metade da
 velocidade linear e da angular.
 
-### 5.3 Resultados (ensaios finais de 180 s, semente 1)
+### 5.3 Resultados (ensaios de 180 s, sementes 1, 2 e 3)
 
-Figuras: `analise/figuras/goto_trajetoria_A.png`, `goto_trajetoria_B.png`, `goto_rho_alpha_A.png`,
+Figuras (semente 1): `analise/figuras/goto_trajetoria_A.png`, `goto_trajetoria_B.png`, `goto_rho_alpha_A.png`,
 `goto_rho_alpha_B.png` e a comparação `goto_comparacao.png`.
 
 ![Comparação goto A vs B](analise/figuras/goto_comparacao.png)
 
+Média ± desvio-padrão (n = 3); entre parênteses, os valores das sementes 1, 2 e 3.
+
 | Métrica | A | B |
 |---|---|---|
 | Duração (s) | 180 | 180 |
-| **Metas atingidas** | **15** | **32** |
-| **Tempo médio por meta (s)** | **11,8** | **5,6** |
-| Tempo mediano por meta (s) | 12,0 | 5,7 |
-| Menor / maior tempo por meta (s) | 6,6 / 15,4 | 3,4 / 7,8 |
-| Distância percorrida (m) | 16,38 | 33,04 |
-| Velocidade linear média (m/s) | 0,091 | 0,185 |
-| `|α|` médio com v > 0,05 m/s (graus) | 2,4 | 3,8 |
-| Tempo girando no lugar, v = 0 (%) | 7,9 | 6,8 |
-| Trocas de sinal de `w` com ρ < 0,15 m | 0 | 0 |
+| **Metas atingidas** | **15,7 ± 1,2** (15 / 15 / 17) | **32,3 ± 0,6** (32 / 33 / 32) |
+| **Tempo médio por meta (s)** | **11,1 ± 0,9** (11,8 / 11,4 / 10,1) | **5,5 ± 0,1** (5,6 / 5,4 / 5,6) |
+| Tempo mediano por meta (s) | 10,9 ± 1,0 (12,0 / 9,9 / 10,9) | 5,3 ± 0,6 (5,7 / 4,6 / 5,7) |
+| Distância percorrida (m) | 16,40 ± 0,12 (16,38 / 16,52 / 16,29) | 33,07 ± 0,06 (33,04 / 33,14 / 33,03) |
+| Velocidade linear média (m/s) | 0,092 ± 0,001 | 0,185 ± 0,000 |
+| `|α|` médio com v > 0,05 m/s (graus) | 2,5 ± 0,3 (2,4 / 2,2 / 2,8) | 3,8 ± 0,1 (3,8 / 3,9 / 3,7) |
+| Tempo girando no lugar, v = 0 (%) | 7,5 ± 0,7 (7,9 / 6,7 / 8,0) | 6,6 ± 0,3 (6,8 / 6,3 / 6,6) |
+| Trocas de sinal de `w` com ρ < 0,15 m | 0, 0, 0 | 0, 0, 0 |
 
 ### 5.4 Comparação A vs B
 
-- **A diferença é dominada pela velocidade.** A B atingiu 2,1× mais metas (32 contra 15), com tempo médio por meta
-  2,1× menor e velocidade média 2,0× maior (0,185 contra 0,091 m/s). A distância percorrida por meta é parecida
-  nas duas (16,38 m ÷ 15 = 1,09 m na A e 33,04 m ÷ 32 = 1,03 m na B).
-- **Giro no lugar:** a fração do tempo girando é parecida (7,9% e 6,8%), mas como cada meta dura menos na B, o tempo
-  absoluto de giro por meta cai de cerca de 0,95 s (A) para 0,38 s (B). Esse valor é derivado das porcentagens
-  medidas e do número de metas, então vale como estimativa. Compatível com o `w_max` dobrado (4 contra 2 rad/s).
-- **Custo do ganho alto:** o erro angular médio ao andar é maior na B (3,8° contra 2,4°). [PREENCHER: confirmar
-  a explicação olhando os trechos de reorientação em `goto_rho_alpha_*.png`; a hipótese é que a B anda mais
-  rápido logo após o giro, enquanto o erro ainda está sendo corrigido.]
+- **A diferença é dominada pela velocidade.** Em média, a B atingiu 2,1× mais metas (32,3 contra 15,7), com tempo
+  médio por meta 2,0× menor e velocidade média 2,0× maior (0,185 contra 0,092 m/s). Em cada uma das 3 sementes a B
+  fez de 1,9× a 2,2× as metas da A (32 contra 15, 33 contra 15 e 32 contra 17). A
+  distância percorrida por meta é parecida nas duas (16,40 ÷ 15,67 = 1,05 m na A e 33,07 ÷ 32,33 = 1,02 m na B).
+- **Giro no lugar:** a fração do tempo girando é parecida (7,5% e 6,6%), mas como cada meta dura menos na B, o tempo
+  absoluto de giro por meta cai de cerca de 0,87 s (A) para 0,37 s (B). Esse valor é derivado das médias das
+  porcentagens e do número de metas, então vale como estimativa. É compatível com o `w_max` dobrado (4 contra 2 rad/s).
+- **Custo do ganho alto:** o erro angular médio ao andar é maior na B (3,8° contra 2,5°). Nas 3 sementes o valor da
+  B (3,7 a 3,9°) ficou acima do da A (2,2 a 2,8°). [PREENCHER: confirmar a explicação olhando os trechos de
+  reorientação em `goto_rho_alpha_*.png`; a hipótese é que a B anda mais rápido logo após o giro, enquanto o erro
+  ainda está sendo corrigido.]
 - **Sem oscilação perto da meta** (0 trocas de sinal de `w` com ρ < 0,15 m) nas duas, e nenhuma meta perdida em
-  nenhum dos ensaios: a chegada é em linha reta, com `α ≈ 0`. A B, com `Kα = 4` e laço de 20 Hz, não mostrou
+  nenhum dos 6 ensaios: a chegada é em linha reta, com `α ≈ 0`. A B, com `Kα = 4` e laço de 20 Hz, não mostrou
   instabilidade no simulador.
 - **Efeito visível nos gráficos de `α`:** a cada troca de meta, `α` salta para valores grandes (até ±180°) e
   decai em poucos instantes, o que gera os picos em dente de serra de `ρ` e `α`.
-- **Observação sobre a semente:** em ensaios exploratórios anteriores, com sequências de metas diferentes (sem
-  semente), o resultado foi 18 metas (A) e 35 (B), a mesma ordem de grandeza. Só os ensaios com semente fixa
-  são comparados no relatório.
+- **Variabilidade:** a A varia mais entre sementes (de 15 a 17 metas) porque o número de metas depende da sequência
+  sorteada (metas mais distantes ou atrás do robô custam mais tempo). A B varia menos (32 a 33).
+  [PREENCHER: confirmar essa explicação, por exemplo comparando a distância total entre metas de cada semente.]
+- **Observação:** em ensaios exploratórios anteriores, sem semente fixa, o resultado foi 18 metas (A) e 35 (B). Esses
+  registros não foram guardados e não entram nas tabelas.
 
 ---
 
@@ -287,8 +302,8 @@ Figuras: `analise/figuras/goto_trajetoria_A.png`, `goto_trajetoria_B.png`, `goto
   atraso na pose.
 - O robô passa pela meta sem parar. Isso satisfaz o critério de 6 cm do simulador, mas não serviria para uma
   tarefa que exija parar na meta.
-- A cada troca de meta o robô perde tempo girando no lugar quando a nova meta está atrás dele (7,9% do tempo na A e
-  6,8% na B).
+- A cada troca de meta o robô perde tempo girando no lugar quando a nova meta está atrás dele (7,5% do tempo na A e
+  6,6% na B, em média).
 - Como a diferença A/B é quase toda de `v_max`, o ensaio não isola o efeito de cada ganho separadamente.
   [PREENCHER: se houver tempo, um ensaio variando só `Kα`.]
 
@@ -299,12 +314,13 @@ Figuras: `analise/figuras/goto_trajetoria_A.png`, `goto_trajetoria_B.png`, `goto
 - Não há memória nem mapa: o controle é puramente reativo e pode cair em mínimos locais (cantos) ou órbitas
   periódicas, como visto na B antes do *wander*.
 - O robô não dá ré. A única saída de uma situação de bloqueio é girar no lugar.
-- O anti-travamento **nunca foi acionado nos ensaios do simulador** (0 acionamentos em A e B, nos ensaios finais e
-  nos testes curtos). Só foi exercitado nos testes offline. Portanto não há evidência no simulador de que ele
+- O anti-travamento **nunca foi acionado nos ensaios do simulador** (0 acionamentos nas 6 execuções finais, 3 de A e
+  3 de B, nem nos testes curtos). Só foi exercitado nos testes offline. Portanto não há evidência no simulador de que ele
   resolva um travamento real, apenas de que o robô não travou sem ele.
 - A cobertura da A é limitada pela baixa velocidade. A comparação de cobertura não normaliza pela distância.
-- O *wander* é aleatório. A mesma configuração pode dar trajetórias diferentes entre execuções (o nó aceita o
-  parâmetro `~seed`, não usado nos ensaios finais). [PREENCHER: dizer se os ensaios finais usaram semente do nó.]
+- O *wander* é aleatório. A mesma configuração dá trajetórias diferentes entre execuções (o nó aceita o parâmetro
+  `~seed`, **não usado** em nenhum ensaio). Isso é a única fonte de variação entre as execuções do avoid; as
+  métricas variaram pouco (Seção 4.4).
 
 ### 6.2 Casos de falha observados
 
@@ -346,20 +362,21 @@ testar no robô físico, trocar hipóteses por medidas.]
 ## 7. Conclusão
 
 Foram implementados e avaliados no simulador dois nós ROS para o HeRo, `goto` e `avoid`, cada um com duas
-configurações de parâmetros.
+configurações de parâmetros e avaliado em três execuções por configuração.
 
 - No **goto**, a lei de controle proporcional em `α`, com velocidade reduzida pelo cosseno do erro, atingiu as metas
-  sem oscilar nem perder nenhuma. A configuração B atingiu 32 metas em 180 s contra 15 da A (tempo médio por meta
-  de 5,6 s contra 11,8 s), diferença explicada principalmente pela velocidade máxima.
+  sem oscilar nem perder nenhuma. A configuração B atingiu em média 32,3 metas em 180 s contra 15,7 da A (tempo
+  médio por meta de 5,5 s contra 11,1 s), diferença explicada principalmente pela velocidade máxima.
 - No **avoid**, o controle Braitenberg com anti-travamento e *wander* manteve o robô andando por 300 s sem
-  nenhuma colisão nas duas configurações (menor distância lida de 0,186 m na A e 0,118 m na B, contra o limiar de
-  0,045 m). A B cobriu mais a arena (62 contra 41 de 64 células) e andou o dobro da distância.
-- Os resultados vêm de **uma execução por configuração**, com o simulador (física e lidar sem ruído, odometria exata).
-  O anti-travamento não foi exercitado no simulador. A transferência para o HeRo real exigirá tratar ruído do
-  lidar, deriva da odometria, latência e as não linearidades dos motores.
+  nenhuma colisão nas 6 execuções (menor distância lida de 0,193 m na A e 0,124 m na B em média, contra o limiar de
+  0,045 m). A B cobriu mais a arena (60,3 contra 38,7 de 64 células, em média) e andou o dobro da distância.
+- Os resultados vêm de **três execuções por configuração** (desvios-padrão pequenos, mas com n = 3 só indicativos),
+  com o simulador (física e lidar sem ruído, odometria sem deriva). O anti-travamento não foi exercitado no
+  simulador. A transferência para o HeRo real exigirá tratar ruído do lidar, deriva da odometria, latência e as
+  não linearidades dos motores.
 
-[PREENCHER: trabalhos futuros que a equipe queira citar, por exemplo repetições com sementes diferentes, ensaio
-isolando cada ganho e testes no robô real.]
+[PREENCHER: trabalhos futuros que a equipe queira citar, por exemplo ensaio isolando cada ganho, mais execuções
+para um intervalo de confiança e testes no robô real.]
 
 ---
 
@@ -367,7 +384,8 @@ isolando cada ganho e testes no robô real.]
 
 Código, registros, scripts de gráficos e README em [PREENCHER: link do repositório]. Para repetir um ensaio:
 `./scripts/ensaio.sh <goto|avoid> <A|B> [semente]`. Para gerar gráficos e tabelas:
-`python analise/plot_avoid.py` e `python analise/plot_goto.py`.
+`python analise/plot_avoid.py`, `python analise/plot_goto.py` e, para a média e o desvio entre as execuções,
+`python analise/repeticoes.py`.
 
 Vídeos: goto [PREENCHER: link], avoid [PREENCHER: link].
 
@@ -378,6 +396,7 @@ Vídeos: goto [PREENCHER: link], avoid [PREENCHER: link].
 1. [PREENCHER] nomes e matrículas da equipe, link do repositório, links dos vídeos e a data de entrega (o PDF do
    enunciado diz 17/11/2026).
 2. Gravar os vídeos de 1 a 2 min de cada exercício (nenhum foi gravado até agora).
-3. Revisar as hipóteses marcadas (explicação do `|α|` maior na B, argumento dos setores cegos, uso da semente do nó).
+3. Revisar as hipóteses marcadas (explicação do `|α|` maior na B, a variação maior da A entre sementes e o
+   argumento dos setores cegos).
 4. Converter o Mermaid do item 2.1 em imagem para o PDF (ou desenhar o diagrama na ferramenta preferida).
-5. Se houver tempo, repetir os ensaios com sementes diferentes para dar barras de erro.
+5. Decidir se as figuras do relatório mostram só a execução 1 ou se vale incluir a dispersão entre as execuções.
