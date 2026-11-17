@@ -1,4 +1,17 @@
+# ambiente do kit (macOS) e estado do simulador
 .venv/
 .flavor
 .sim.*
+
+# Python / editores / sistema
 __pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Os CSVs dos ensaios (exercicios/*/*_log_*.csv) e as figuras de analise/ FICAM no repositório:
+# fazem parte da entrega. Ignora-se só o que for temporário.
+*.log
+*.tmp
