@@ -1,9 +1,12 @@
 <launch>
   <!-- Bridge to the simulator + the avoid.py node for hero_0.
-       script: another file inside avoid/ -->
+       script: another file inside avoid/
+       config: parameter set of the controller (A or B), e.g. ./run.sh run avoid config:=B -->
   <arg name="script" default="avoid.py"/>
+  <arg name="config" default="A"/>
   <include file="$(find psr_hero)/launch/bridge.launch"/>
   <node pkg="psr_exercicios" type="$(arg script)" name="avoid_0" output="screen">
     <param name="robot" value="0"/>
+    <param name="config" value="$(arg config)"/>
   </node>
 </launch>
