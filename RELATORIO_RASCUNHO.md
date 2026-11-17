@@ -13,11 +13,6 @@ Equipe:
 
 Repositório: https://github.com/marcusoliveira57/Tp5-Hero. Entrega: 17/11/2026.
 
-> **Como ler este rascunho.** Todos os números das seções de resultados vêm dos CSVs dos ensaios finais
-> (`exercicios/*/*_log_*.csv`) e das tabelas em `analise/tabelas/`. Cada configuração foi rodada **três vezes**
-> no simulador, em modo CPU. As tabelas mostram **média ± desvio-padrão amostral (n = 3)**; as figuras mostram a
-> execução 1. O que não foi medido está marcado com `[PREENCHER]` ou descrito como hipótese.
-
 ---
 
 ## 1. Introdução
@@ -320,7 +315,6 @@ Média ± desvio-padrão (n = 3); entre parênteses, os valores das sementes 1, 
 - A cada troca de meta o robô perde tempo girando no lugar quando a nova meta está atrás dele (7,5% do tempo na A e
   6,6% na B, em média).
 - Como a diferença A/B é quase toda de `v_max`, o ensaio não isola o efeito de cada ganho separadamente.
-  [PREENCHER: se houver tempo, um ensaio variando só `Kα`.]
 
 **avoid**
 - Com 8 feixes de 45°, o lidar tem setores cegos entre os feixes. Os feixes saem do centro do robô; no pior caso
