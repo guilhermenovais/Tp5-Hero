@@ -408,5 +408,5 @@ Vídeos (100 s cada, config. B, semente 1, gravados da janela do simulador): got
 2. ~~Gravar os vídeos de 1 a 2 min de cada exercício~~ (feito: `videos/goto_B.mp4` e `videos/avoid_B.mp4`).
 3. ~~Revisar as hipóteses marcadas~~ (feito: `|α|` maior na B e variação da A entre sementes confirmados nos logs;
    argumento dos setores cegos corrigido com a geometria).
-4. Converter o Mermaid do item 2.1 em imagem para o PDF (ou desenhar o diagrama na ferramenta preferida).
-5. Decidir se as figuras do relatório mostram só a execução 1 ou se vale incluir a dispersão entre as execuções.
+4. ~~Converter o Mermaid do item 2.1 em imagem~~ (feito: `scripts/gerar_pdf.py` desenha o diagrama no PDF).
+5. ~~Decidir as figuras~~ (decidido: figuras da execução 1; a dispersão entre execuções está nas tabelas).

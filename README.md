@@ -44,8 +44,9 @@ README_KIT.md                 README original do kit
 
 - **Simulador e nós (Windows):** Windows 10/11 com **WSL2 + Ubuntu** e **Docker Desktop** com a integração
   WSL ativada para o Ubuntu (Settings → Resources → WSL integration). Rode tudo no terminal do Ubuntu,
-  com o kit dentro do sistema de arquivos do Linux (por exemplo `~/psr-hero-kit`, não `/mnt/c/...`).
-  A janela 3D aparece pelo WSLg. No Linux basta o Docker Engine.
+  com o repositório dentro do sistema de arquivos do Linux (por exemplo `~/Tp5-Hero`, não `/mnt/c/...`).
+  A janela 3D aparece pelo WSLg. No Linux basta o Docker Engine; se a janela não abrir ("No display
+  detected"), libere o X para o container com `xhost +local:` (pacote `xorg-xhost`/`x11-xserver-utils`).
 - **Análise (fora do container):** Python 3.10 ou mais novo com `pandas`, `numpy` e `matplotlib`:
   `pip install pandas numpy matplotlib`.
 
@@ -54,7 +55,8 @@ README_KIT.md                 README original do kit
 Instalação, uma vez (5 a 15 min):
 
 ```bash
-cd ~/psr-hero-kit
+git clone https://github.com/marcusoliveira57/Tp5-Hero.git ~/Tp5-Hero
+cd ~/Tp5-Hero
 ./run.sh build
 ```
 
