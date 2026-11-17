@@ -1,7 +1,17 @@
 # Relatório 5: ROS e navegação com o HeRo (RASCUNHO)
 
 Projeto de Sistemas Robóticos, DCC/UFMG, 2º semestre de 2026. Prof. Paulo Rezeck.
-Equipe: [PREENCHER: nomes e matrículas]. Repositório: [PREENCHER: link]. Entrega: [PREENCHER: confirmar a data, o PDF do enunciado diz 17/11/2026].
+Equipe:
+
+| Nome | Matrícula |
+|---|---|
+| Guilherme Novais de Souza | 2022036047 |
+| Hector Julio Pardinho Soares | 2017108353 |
+| Lean Henrique Pereira Miranda | 2022035652 |
+| Luís Eduardo Jorge Almeida | 2022423440 |
+| Marcus Vinicius Gomes de Oliveira | 2022036152 |
+
+Repositório: https://github.com/marcusoliveira57/Tp5-Hero. Entrega: 17/11/2026.
 
 > **Como ler este rascunho.** Todos os números das seções de resultados vêm dos CSVs dos ensaios finais
 > (`exercicios/*/*_log_*.csv`) e das tabelas em `analise/tabelas/`. Cada configuração foi rodada **três vezes**
@@ -391,7 +401,7 @@ para um intervalo de confiança e testes no robô real.]
 
 ## 8. Reprodutibilidade
 
-Código, registros, scripts de gráficos e README em [PREENCHER: link do repositório]. Para repetir um ensaio:
+Código, registros, scripts de gráficos e README em https://github.com/marcusoliveira57/Tp5-Hero. Para repetir um ensaio:
 `./scripts/ensaio.sh <goto|avoid> <A|B> [semente]`. Para gerar gráficos e tabelas:
 `python analise/plot_avoid.py`, `python analise/plot_goto.py` e, para a média e o desvio entre as execuções,
 `python analise/repeticoes.py`.
@@ -402,8 +412,7 @@ Vídeos: goto [PREENCHER: link], avoid [PREENCHER: link].
 
 ## Pendências antes de converter para PDF
 
-1. [PREENCHER] nomes e matrículas da equipe, link do repositório, links dos vídeos e a data de entrega (o PDF do
-   enunciado diz 17/11/2026).
+1. [PREENCHER] links dos vídeos (equipe, repositório e data já preenchidos).
 2. Gravar os vídeos de 1 a 2 min de cada exercício (nenhum foi gravado até agora).
 3. ~~Revisar as hipóteses marcadas~~ (feito: `|α|` maior na B e variação da A entre sementes confirmados nos logs;
    argumento dos setores cegos corrigido com a geometria).
