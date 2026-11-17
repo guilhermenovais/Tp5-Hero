@@ -1,6 +1,7 @@
 # Relatório 5: ROS e navegação com o HeRo (RASCUNHO)
 
 Projeto de Sistemas Robóticos, DCC/UFMG, 2º semestre de 2026. Prof. Paulo Rezeck.
+
 Equipe:
 
 | Nome | Matrícula |
@@ -269,7 +270,7 @@ Média ± desvio-padrão (n = 3); entre parênteses, os valores das sementes 1, 
 | Tempo mediano por meta (s) | 10,9 ± 1,0 (12,0 / 9,9 / 10,9) | 5,3 ± 0,6 (5,7 / 4,6 / 5,7) |
 | Distância percorrida (m) | 16,40 ± 0,12 (16,38 / 16,52 / 16,29) | 33,07 ± 0,06 (33,04 / 33,14 / 33,03) |
 | Velocidade linear média (m/s) | 0,092 ± 0,001 | 0,185 ± 0,000 |
-| `|α|` médio com v > 0,05 m/s (graus) | 2,5 ± 0,3 (2,4 / 2,2 / 2,8) | 3,8 ± 0,1 (3,8 / 3,9 / 3,7) |
+| \|α\| médio com v > 0,05 m/s (graus) | 2,5 ± 0,3 (2,4 / 2,2 / 2,8) | 3,8 ± 0,1 (3,8 / 3,9 / 3,7) |
 | Tempo girando no lugar, v = 0 (%) | 7,5 ± 0,7 (7,9 / 6,7 / 8,0) | 6,6 ± 0,3 (6,8 / 6,3 / 6,6) |
 | Trocas de sinal de `w` com ρ < 0,15 m | 0, 0, 0 | 0, 0, 0 |
 

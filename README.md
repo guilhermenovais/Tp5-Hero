@@ -32,6 +32,8 @@ scripts/ensaio.sh             roda um ensaio final com semente fixa
 analise/plot_avoid.py         gráficos e métricas do avoid (execução 1)
 analise/plot_goto.py          gráficos e métricas do goto (execução 1)
 analise/repeticoes.py         média e desvio-padrão entre as 3 execuções
+RELATORIO.pdf                 relatório entregue (gerado de RELATORIO_RASCUNHO.md por scripts/gerar_pdf.py)
+videos/                       vídeos dos dois exercícios no simulador
 analise/figuras/              PNGs gerados
 analise/tabelas/              tabelas de métricas A vs B (.csv e .md)
 tests/                        testes offline (sem ROS) da lei de controle e da análise
